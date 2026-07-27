@@ -44,7 +44,7 @@ def load_config() -> Config:
         pg_host = _env("POSTGRES_HOST","localhost"),
         pg_port=_env_int("POSTGRES_PORT",5432),
         pg_user=_env("POSTGRES_USER","studbud"),
-        pg_password=("POSTGRES_PASSWORD","studbud"),
+        pg_password=_env("POSTGRES_PASSWORD","studbud"),
         pg_db=_env("POSTGRES_DB","studbud"),
         
     )
