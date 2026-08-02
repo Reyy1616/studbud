@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -20,17 +21,27 @@ class Config:
     openai_base_url : str | None
     openai_api_key : str
     chat_model : str 
+    embed_model : str
+    embed_dim: int
     vector_store : str 
     pg_host : str 
     pg_port : int 
     pg_user : str 
     pg_password : str
     pg_db : str 
+    documents_dir: str
+    processed_dir: str
+    chunk_size: int
+    chunk_overlap : int
+    
+    def ensure_dirs(self)-> None:
+        self.documents_dir.mkdir(parents=True, exist_ok=True)
+        self.processed_dir.mkdir(parents=True, exist_ok=True)
     
     @property
     def pg_dsn(self) ->str:
         return(
-            f"postgressql://{self.pg_user}:{self.pg_password}"
+            f"postgresql://{self.pg_user}:{self.pg_password}"
             f"@{self.pg_host}:{self.pg_port}/{self.pg_db}"
         )
     
@@ -40,11 +51,18 @@ def load_config() -> Config:
         openai_base_url=base_url_raw or None,
         openai_api_key=_env("OPENAI_API_KEY","unused-local"),
         chat_model=_env("CHAT_MODEL","gemma3:latest"),
+        embed_model=_env("EMBED_MODEL","nomic-embed-text"),
+        embed_dim=_env_int("EMBED_DIM", 768),
         vector_store=_env("VECTOR_STORE","postgres"),
         pg_host = _env("POSTGRES_HOST","localhost"),
         pg_port=_env_int("POSTGRES_PORT",5432),
         pg_user=_env("POSTGRES_USER","studbud"),
         pg_password=_env("POSTGRES_PASSWORD","studbud"),
         pg_db=_env("POSTGRES_DB","studbud"),
+        documents_dir=Path(_env("DOCUMENTS_DIR", "./documents")),
+        processed_dir=Path(_env("PROCESSED_DIR", "./documents/processed")),
+        chunk_size=_env_int("CHUNK_SIZE",1000),
+        chunk_overlap=_env_int("CHUNK_OVERLAP", 150),
+        
         
     )

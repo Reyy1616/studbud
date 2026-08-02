@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
+
 
 @dataclass
 class StoredChunk:
@@ -10,47 +11,44 @@ class StoredChunk:
     text: str
     embedding: list[float]
     metadata: dict[str, Any]
-    
-    
+
 
 @dataclass
 class SearchHit:
     source_path: str
     chunk_index: int
-    text: str 
+    text: str
     score: float
     metadata: dict[str, Any]
-    
-    
+
+
 class VectorStore(ABC):
     @abstractmethod
-    def has_document(self, source_path: str, content_hash: str)-> bool:
+    def has_document(self, source_path: str, content_hash: str) -> bool:
         """Return True if this exact (path,hash) is already stored."""
-        
+
     @abstractmethod
     def upsert_document(
-        self,
-        source_path: str,
-        content_hash: str,
-        chunks: list[StoredChunk]
-    )->None:
+        self, source_path: str, content_hash: str, chunks: list[StoredChunk]
+    ) -> None:
         """Replace any existing chunks for 'source_path' with the given ones."""
-        
+
     @abstractmethod
-    def delete_document(self, source_path: str )->None:
+    def delete_document(self, source_path: str) -> None:
         """Remove a document and all of its chunks from the store."""
-        
+
     @abstractmethod
-    def search(self, query_text: str, query_embedding: list [float], k: int) -> list [SearchHit]:
+    def search(
+        self, query_text: str, query_embedding: list[float], k: int
+    ) -> list[SearchHit]:
         """Return top-k chunks for the query."""
-        
+
     @abstractmethod
     def close(self) -> None:
         """Release any underlying resources."""
-        
-    def __enter__(self) ->"VectorStore":
+
+    def __enter__(self) -> "VectorStore":
         return self
-    
-    def __exit__(self, *exc: object)-> None:
+
+    def __exit__(self, *exc: object) -> None:
         self.close()
-        
