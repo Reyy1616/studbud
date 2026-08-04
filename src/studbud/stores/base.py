@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Self
 
 
 @dataclass
@@ -47,7 +47,7 @@ class VectorStore(ABC):
     def close(self) -> None:
         """Release any underlying resources."""
 
-    def __enter__(self) -> "VectorStore":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *exc: object) -> None:
