@@ -1,22 +1,24 @@
 from __future__ import annotations
 
+import itertools
 import logging
+import sys
+import threading
+import time
 from pathlib import Path
 
 import typer
 
 from .config import load_config
 from .embeddings import Embedder
-from .ingest import Ingestor
+from .ingest import Ingestor, watch
 from .llm import ChatClient
+from .query import build_user_message, initial_messages, retrieve
 from .stores.factory import make_store
 
 app = typer.Typer(add_completion=False,help="Local RAG CLI")
 
-SYSTEM_PROMPT = (
-    "You are a helpful assistant. Answer the user's questions clearly"
-    "and concisely."
-)
+
 
 
 def _setup_logging() -> None:
@@ -25,6 +27,8 @@ def _setup_logging() -> None:
         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
         datefmt="%H:%M:%S",
     )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     
     
 def _build_ingestor()-> Ingestor:
@@ -34,6 +38,45 @@ def _build_ingestor()-> Ingestor:
     embedder = Embedder.from_config(cfg)
     return Ingestor(cfg, store, embedder)
 
+def _print_sources(hits: list) -> None:
+    if not hits:
+        return
+    typer.echo("\nsource:")
+    for h in hits:
+        name = Path(h.source_path).name
+        typer.echo(
+            f"   - {name} (chunk {h.chunk_index}), score {h.score:.2f}"
+        )
+
+class _Spinner:
+    FRAMES = "|/-|\\"
+    
+    def __init__(self, message="thinking", interval: float = 0.1) -> None:
+        self._message = message
+        self._interval = interval
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._spin, daemon=True)
+        self._clear = "\r" + " " * (len(message) + 5) + "\r"
+        
+    def _spin(self) -> None:
+        for frame in itertools.cycle(self.FRAMES):
+            if self._stop.is_set():
+                break
+            sys.stdout.write(f"\r{frame} {self._message}...")
+            sys.stdout.flush()
+            time.sleep(self._interval)
+    
+    def start(self) -> None:
+        self._thread.start()
+    
+    def stop(self) -> None:
+        if self._stop.is_set():
+            return
+        self._stop.set()
+        self._thread.join()
+        sys.stdout.write(self._clear)
+        sys.stdout.flush()
+    
 @app.command("ingest")
 def ingest_cmd(path: Path = typer.Argument(..., exists=True, readable=True))-> None: #noqa
     _setup_logging()
@@ -56,46 +99,98 @@ def scan_cmd() -> None:
     finally:
         ingestor.store.close()
         
-@app.command("chat")
-def chat_cmd() -> None: 
+@app.command("watch")
+def watch_cmd() -> None:
+    _setup_logging()
+    ingestor = _build_ingestor()
+    try:
+        watch(ingestor)
+    finally:
+        ingestor.store.close()
+
+@app.command("ask")
+def ask_cmd(
+    question: str = typer.Argument(..., help="One-shot question to ask"),
+    k: int = typer.Option(None, "--k", help="Override Top_K"),
+) -> None:
+    _setup_logging()
     cfg = load_config()
+    store = make_store(cfg)
+    embedder = Embedder.from_config(cfg)
+    chat = ChatClient.from_config(cfg)
+    top_k = k if k is not None else cfg.top_k
+    try:
+        ctx = retrieve(store, embedder, question, top_k)
+        messages = initial_messages(cfg.system_prompt)
+        messages.append(
+            {"role":"user", "content": build_user_message(question, ctx)}
+        )
+        for piece in chat.stream(messages):
+            typer.echo(piece, nl=False)
+        typer.echo("")
+        _print_sources(ctx.hits)
+    finally:
+        store.close()
+        
+@app.command("chat")
+def chat_cmd(
+    k: int = typer.Option(None, "--k", help= "Override TOP_K"),   
+) -> None: 
+    _setup_logging()
+    cfg = load_config()
+    store = make_store(cfg)
+    embedder = Embedder.from_config(cfg)
     chat= ChatClient.from_config(cfg)
-    
+    top_k = k if k is not None else cfg.top_k
     
     typer.echo(
         f"studbud chat - model= {cfg.chat_model}\n"
         "Type your question.Commands: /reset to clear history, /exit to quit."
     )
     
-    messages:list = [{"role": "system", "content":SYSTEM_PROMPT}]
+    messages = initial_messages(cfg.system_prompt)
     
-    while True:
-        try: 
-            question = typer.prompt("\nYou",prompt_suffix="> ")
-        except (EOFError,KeyboardInterrupt):
-            type.echo("")
-            break
-        
-        q = question.strip()
-        if not q:
-            continue
-        if q in {"/exit","/quit"}:
-            break
-        if q == "/reset":
-            messages = [{"role": "system", "content":SYSTEM_PROMPT }]
-            typer.echo("history deleted")
-            continue
-        
-        messages.append({"role":"user","content":q})
-        
-        typer.echo("\nStudbud> ",nl=False)
-        answer_parts: list[str]= []
-        for piece in chat.stream(messages):
-            typer.echo(piece, nl = False)
-            answer_parts.append(piece)
-        typer.echo("")
-        messages.append({"role":"assistant", "content": "".join(answer_parts)})
-        
+    try:
+        while True:
+            try: 
+                question = typer.prompt("\nYou",prompt_suffix="> ")
+            except (EOFError,KeyboardInterrupt):
+                typer.echo("")
+                break
+            
+            q = question.strip()
+            if not q:
+                continue
+            if q in {"/exit","/quit"}:
+                break
+            if q == "/reset":
+                messages = initial_messages(cfg.system_prompt)
+                typer.echo("history deleted")
+                continue
+            
+            ctx = retrieve(store, embedder, q, top_k)
+            messages.append(
+                {"role":"user", "content": build_user_message(q,ctx)}
+            )
+            
+            typer.echo("\nStudbud> ",nl=False)
+            answer_parts: list[str]= []
+            spinner = _Spinner()
+            spinner.start()
+            try:
+                for piece in chat.stream(messages):
+                    if not answer_parts:
+                        spinner.stop()
+                        typer.echo("\nStudBud> " , nl= False)
+                    typer.echo(piece, nl = False)
+                    answer_parts.append(piece)
+            finally:
+                spinner.stop()        
+            typer.echo("")
+            messages.append({"role":"assistant", "content": "".join(answer_parts)})
+            _print_sources(ctx.hits)
+    finally:
+        store.close()   
         
 if __name__ == "__main__":
     app()
