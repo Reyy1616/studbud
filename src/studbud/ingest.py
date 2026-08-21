@@ -9,6 +9,7 @@ from pathlib import Path
 
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
+from pypdf import PdfReader
 
 from .chunking import chunk_text
 from .config import Config
@@ -18,6 +19,8 @@ from .stores.base import StoredChunk, VectorStore
 log = logging.getLogger(__name__)
 
 TEXT_SUFFIXES = {".txt", ".md", ".markdown"}
+PDF_SUFFIXES = {".pdf"}
+SUPPORTED_SUFFIXES = TEXT_SUFFIXES | PDF_SUFFIXES
 
 def _hash_bytes(data: bytes) ->str:
     return hashlib.sha256(data).hexdigest()
@@ -40,7 +43,7 @@ class Ingestor:
         
     def ingest_file(self, path : Path) -> None:
         suffix = path.suffix.lower()
-        if suffix not in TEXT_SUFFIXES:
+        if suffix not in SUPPORTED_SUFFIXES:
             log.info("Skipping unsupported file: %s", path.name)
             return
         
@@ -58,7 +61,12 @@ class Ingestor:
             self._move_to_processed(path)
             return
         
-        text = data.decode("utf-8", errors="replace")
+        if suffix in PDF_SUFFIXES:
+            text = self._extract_pdf_text(path)
+            kind = "pdf"
+        else:
+            text = data.decode("utf-8", errors="replace")
+            kind = "text"
         chunks = chunk_text(text, self.config.chunk_size, self.config.chunk_overlap)
         if not chunks:
             log.warning("No content to ingest in %s", path.name)
@@ -73,14 +81,50 @@ class Ingestor:
                 index= c.index,
                 text= c.text,
                 embedding=emb,
-                metadata={},
+                metadata={"type": kind},
             )
             for c, emb in zip(chunks, embeddings , strict = True)
         ]
         
-        self.store.upsert_document(source_path, content_hash, stored)
+        self.store.upsert_document(
+            source_path,
+            content_hash,
+            stored,
+            metadata={"suffix": path.suffix.lower(), "kind": kind}
+        )
+        
         log.info("Ingested %s (%d chunks)", path.name, len(stored))
         self._move_to_processed(path)
+
+    def _extract_pdf_text(self, path: Path) -> str:
+        try:
+            reader = PdfReader(str(path))
+        except Exception as exc:
+            raise ValueError(f"Could not read PDF {path.name}: {exc}") from exc
+
+        pages: list[str] = []
+        for page_number, page in enumerate(reader.pages, start=1):
+            try:
+                page_text = page.extract_text() or ""
+            except Exception as exc:
+                log.warning(
+                    "Could not extract page %d from %s: %s",
+                    page_number,
+                    path.name,
+                    exc,
+                )
+                continue
+            page_text = page_text.strip()
+            if page_text:
+                pages.append(f"[Page {page_number}]\n{page_text}")
+
+        text = "\n\n".join(pages).strip()
+        if not text:
+            raise ValueError(
+                f"No extractable text found in {path.name}. "
+                "The PDF may be scanned/image-only and would require OCR."
+            )
+        return text
         
     def _move_to_processed(self, path: Path) -> None:
         processed = self.config.processed_dir
@@ -104,7 +148,7 @@ class _DeboundHandler(FileSystemEventHandler):
              
         def _schedule(self, raw_path: str) -> None:
             path = Path(raw_path)
-            if path.suffix.lower() not in TEXT_SUFFIXES:
+            if path.suffix.lower() not in SUPPORTED_SUFFIXES:
                 return
             
             if _is_under(path, self._processed_dir):

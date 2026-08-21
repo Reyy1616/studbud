@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Self
 
 
@@ -20,6 +21,8 @@ class SearchHit:
     text: str
     score: float
     metadata: dict[str, Any]
+    document_metadata: dict[str, Any] = field(default_factory=dict)
+    ingested_at: datetime | None = None
 
 
 class VectorStore(ABC):
@@ -29,7 +32,8 @@ class VectorStore(ABC):
 
     @abstractmethod
     def upsert_document(
-        self, source_path: str, content_hash: str, chunks: list[StoredChunk]
+        self, source_path: str, content_hash: str, chunks: list[StoredChunk],
+        metadata: dict [str,Any] | None = None
     ) -> None:
         """Replace any existing chunks for 'source_path' with the given ones."""
 

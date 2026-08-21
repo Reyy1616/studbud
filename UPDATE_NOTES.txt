@@ -1,0 +1,24 @@
+StudBud update
+==============
+
+Changes made:
+1. Replaced the mythology assistant prompt with the JTMK StudBud study-assistant scope.
+2. Added PDF ingestion using pypdf.
+3. Added .pdf to the web upload endpoint and browser file picker.
+4. Added PDF/text metadata to stored chunks/documents.
+5. Fixed `docs.interdir()` -> `docs.iterdir()` in the scan command.
+6. Fixed `HTTPException(static_code=...)` -> `status_code=...` in the upload error path.
+
+After copying/updating the project, run:
+    pip install -e .
+
+Then ingest a text-based PDF using either:
+    studbud ingest path\\to\\file.pdf
+
+or place a PDF in the configured documents directory and run:
+    studbud scan
+
+or start the web app and upload a PDF:
+    studbud serve
+
+Note: image-only/scanned PDFs do not contain extractable text and require OCR, which is not included in this update.
