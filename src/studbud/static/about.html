@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en" class="h-full bg-zinc-950 text-zinc-100">
+<head>
+  <meta charset="utf-8">
+  <title>About Us - StudBud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+  </style>
+</head>
+<body class="min-h-full bg-zinc-950 text-zinc-100 antialiased selection:bg-amber-500 selection:text-black">
+
+  <!-- Background Subtle Glow -->
+  <div class="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/15 via-zinc-950/80 to-zinc-950 pointer-events-none"></div>
+
+  <!-- Main Container -->
+  <div class="relative z-10 max-w-4xl w-full mx-auto flex flex-col px-4 py-6 md:py-8">
+
+    <!-- Top Header -->
+    <header class="mb-8 flex items-center justify-between pb-4 border-b border-amber-900/30">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/20 ring-1 ring-amber-300/30">
+          <i data-lucide="sparkles" class="w-5 h-5 text-zinc-950"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            StudBud
+            <span class="text-[10px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">About</span>
+          </h1>
+          <p class="text-xs text-zinc-400">AI Knowledge Assistant</p>
+        </div>
+      </div>
+
+      <a href="/" class="flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-amber-400 border border-amber-900/30 transition-all">
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        <span>Back to Assistant</span>
+      </a>
+    </header>
+
+    <!-- Hero -->
+    <section class="mb-8 bg-zinc-900/60 border border-amber-900/30 rounded-2xl p-6 md:p-8 shadow-xl backdrop-blur-md">
+      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400/90 mb-3">
+        <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
+        About Us
+      </div>
+      <h2 class="text-2xl md:text-3xl font-bold text-white mb-4 tracking-tight">
+        A curriculum-aligned AI study companion for JTMK students
+      </h2>
+      <p class="text-sm md:text-base text-zinc-300 leading-relaxed">
+        StudBud is an AI-powered study assistant built specifically for students of the Department of
+        Information and Communication Technology (JTMK) at Politeknik Mukah. It delivers explanations,
+        learning guidance, and real-time help for programming problems that stay aligned with the JTMK
+        syllabus and lecturer-approved materials. Instead of handing over finished answers, StudBud offers
+        hints, step-by-step guidance, and concept explanations so students build their own understanding
+        and problem-solving skills.
+      </p>
+    </section>
+
+    <!-- Mission / Problem -->
+    <section class="grid md:grid-cols-2 gap-4 mb-8">
+      <div class="bg-zinc-900/40 border border-amber-900/30 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+        <div class="flex items-center gap-2 text-amber-400 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-950/60 border border-amber-900/40 flex items-center justify-center">
+            <i data-lucide="target" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold uppercase tracking-wider">Our Mission</h3>
+        </div>
+        <p class="text-sm text-zinc-300 leading-relaxed">
+          Bridge the gap between classroom instruction and independent learning. StudBud gives students a
+          private, judgment-free space to ask questions anytime and anywhere, improving confidence in
+          seeking clarification and enhancing overall learning outcomes.
+        </p>
+      </div>
+      <div class="bg-zinc-900/40 border border-amber-900/30 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+        <div class="flex items-center gap-2 text-amber-400 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-950/60 border border-amber-900/40 flex items-center justify-center">
+            <i data-lucide="lightbulb" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold uppercase tracking-wider">Why We Built It</h3>
+        </div>
+        <p class="text-sm text-zinc-300 leading-relaxed">
+          Many students hesitate to ask questions in class, and general AI tools often give explanations
+          that clash with what lecturers teach. Waiting for help during lab sessions costs valuable time.
+          StudBud addresses all three with syllabus-accurate, on-demand support.
+        </p>
+      </div>
+    </section>
+
+    <!-- What StudBud Does -->
+    <section class="mb-8 bg-zinc-900/40 border border-amber-900/30 rounded-2xl p-6 md:p-8 shadow-xl backdrop-blur-md">
+      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400/90 mb-5">
+        <i data-lucide="layers" class="w-4 h-4 text-amber-400"></i>
+        What StudBud Offers
+      </div>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div class="flex gap-3">
+          <i data-lucide="book-open" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Curriculum-Aligned Knowledge Base</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed">Integrated with JTMK lecture notes, lab manuals, and coding conventions used at Politeknik Mukah.</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <i data-lucide="graduation-cap" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Active Learning Engine</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed">Acts as a pedagogical tutor, giving hints, logical steps, and debugging guidance rather than direct answers.</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <i data-lucide="zap" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Real-Time Assistance</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed">Reduces waiting time during practical sessions so students can resolve coding difficulties and keep moving.</p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <i data-lucide="shield-check" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Academic Integrity First</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed">Designed to guide, not to do the work. It encourages critical thinking instead of copy-paste solutions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team -->
+    <section class="mb-8">
+      <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400/90 mb-5">
+        <i data-lucide="users" class="w-4 h-4 text-amber-400"></i>
+        Meet the Team
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Student 1 -->
+        <div class="bg-zinc-900/60 border border-amber-900/30 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center text-zinc-950 font-bold text-lg shadow-lg shadow-amber-500/20 ring-1 ring-amber-300/30">
+              MZ
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">Mohamad Zulfitry Bin Ramli</h3>
+              <p class="text-xs text-amber-400 font-medium">Developer &middot; Semester 5</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm">
+            <a href="mailto:mohamadzulfitry16@gmail.com" class="flex items-center gap-2.5 text-zinc-300 hover:text-amber-400 transition-colors">
+              <i data-lucide="mail" class="w-4 h-4 text-amber-400/80"></i>
+              <span class="break-all">mohamadzulfitry16@gmail.com</span>
+            </a>
+            <a href="tel:+60143120109" class="flex items-center gap-2.5 text-zinc-300 hover:text-amber-400 transition-colors">
+              <i data-lucide="phone" class="w-4 h-4 text-amber-400/80"></i>
+              <span>014-3120109</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Student 2 -->
+        <div class="bg-zinc-900/60 border border-amber-900/30 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center text-zinc-950 font-bold text-lg shadow-lg shadow-amber-500/20 ring-1 ring-amber-300/30">
+              MN
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">Muhammad Najhan Bin Abdullah Shahrin</h3>
+              <p class="text-xs text-amber-400 font-medium">Developer &middot; Semester 5</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-sm">
+            <a href="mailto:mnajhan2104@gmail.com" class="flex items-center gap-2.5 text-zinc-300 hover:text-amber-400 transition-colors">
+              <i data-lucide="mail" class="w-4 h-4 text-amber-400/80"></i>
+              <span class="break-all">mnajhan2104@gmail.com</span>
+            </a>
+            <a href="tel:+60194002669" class="flex items-center gap-2.5 text-zinc-300 hover:text-amber-400 transition-colors">
+              <i data-lucide="phone" class="w-4 h-4 text-amber-400/80"></i>
+              <span>019-4002669</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supervisor -->
+      <div class="mt-4 bg-gradient-to-br from-amber-950/40 to-zinc-900/60 border border-amber-500/20 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="h-14 w-14 rounded-2xl bg-zinc-900 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg shrink-0">
+            <i data-lucide="user-check" class="w-6 h-6"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-400/90 mb-0.5">Project Supervisor</p>
+            <h3 class="text-base font-bold text-white">Mohd Azlan Bin Abdul Aziz</h3>
+            <a href="mailto:azlan@pmu.edu.my" class="inline-flex items-center gap-2 text-sm text-zinc-300 hover:text-amber-400 transition-colors mt-1">
+              <i data-lucide="mail" class="w-4 h-4 text-amber-400/80"></i>
+              <span>azlan@pmu.edu.my</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pt-4 border-t border-amber-900/30 text-center">
+      <p class="text-xs text-zinc-500">
+        Department of Information and Communication Technology &middot; Politeknik Mukah
+      </p>
+      <p class="text-xs text-zinc-600 mt-1">
+        Project Proposal &middot; Session I: 2026/2027
+      </p>
+    </footer>
+
+  </div>
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

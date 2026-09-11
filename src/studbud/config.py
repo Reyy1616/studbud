@@ -8,6 +8,30 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def _sanitize_sslkeylogfile() -> None:
+    """Drop SSLKEYLOGFILE if it points somewhere we cannot write.
+
+    Some environments (VPN/DLP/capture tools) inject SSLKEYLOGFILE with a raw
+    volume path. Python's ssl.create_default_context() opens that file for
+    writing whenever any SSL context is built (e.g. by httpx inside the
+    weaviate/openai clients), raising PermissionError. If the configured path
+    is not writable, we remove the variable so TLS setup can proceed normally.
+    """
+    path = os.environ.get("SSLKEYLOGFILE")
+    if not path:
+        return
+    try:
+        # Opening in append mode is what CPython effectively does; if this
+        # fails, the value is unusable and would crash every TLS handshake.
+        with open(path, "a"):
+            pass
+    except OSError:
+        os.environ.pop("SSLKEYLOGFILE", None)
+
+
+_sanitize_sslkeylogfile()
+
 def _env(key : str, default : str) -> str:
     val = os.getenv(key)
     return val if val is not None and val != "" else default
@@ -46,6 +70,7 @@ class Config:
     weaviate_http_port: int
     weaviate_grcp_port: int
     weaviate_collection: str
+    admin_token: str
     
     
     def ensure_dirs(self)-> None:
@@ -83,6 +108,7 @@ def load_config() -> Config:
         weaviate_http_port=_env_int("WEAVIATE_HTTP_PORT",8080),
         weaviate_grcp_port=_env_int("WEAVIATE_GRCP_PORT",50051),
         weaviate_collection=_env("WEAVIATE_COLLECTION","StudBudChunk"),
+        admin_token=_env("ADMIN_TOKEN", ""),
         
         
     )
